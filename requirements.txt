@@ -1,3 +1,6 @@
 pandas
 numpy
 scipy
+sklearn
+matplotlib
+pandas_datareader
