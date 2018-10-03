@@ -60,11 +60,11 @@ def drop_outliers_if_necessary(train_df, test_df, df):
             test_df, test_df_outliers_rate = drop_outliers(test_df, df)
         else:
             test_df_outliers_rate = 0.0
-    else:
-        train_df_outliers_rate = 0.0
-        test_df_outliers_rate = 0.0
 
-    return train_df, test_df, train_df_outliers_rate, test_df_outliers_rate
+        print("TRAIN DF OUTLIERS RATE = %s" % train_df_outliers_rate)
+        print("TEST DF OUTLIERS RATE = %s" % test_df_outliers_rate)
+
+    return train_df, test_df
 
 
 def drop_outliers_from_specific_column(dframe, column_name, border):

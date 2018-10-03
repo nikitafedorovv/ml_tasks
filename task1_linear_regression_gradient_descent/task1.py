@@ -53,21 +53,25 @@ def make_a_step(y, x, w, stepp):
     return weights
 
 
-results = []
-
-
-def print_and_remember_result(y_true_test, x_test, y_true_train, x_train, w, step_when_finished):
-    r2_test = r2(y_true_test, x_test * w)
-    r2_train = r2(y_true_train, x_train * w)
-    rmse_test = rmse(y_true_test, x_test * w)
-    rmse_train = rmse(y_true_train, x_train * w)
-
-    print("FINISHED ON STEP %s" % step_when_finished)
+def print_r2_rmse(r2_test, r2_train, rmse_test, rmse_train):
     print("  R2_TEST  = %s" % r2_test)
     print("  R2_TRAIN = %s" % r2_train)
     print("RMSE_TEST  = %s" % rmse_test)
     print("RMSE_TRAIN = %s" % rmse_train)
 
+
+results = []
+
+
+def print_and_remember_result(y_true_test, x_test, y_true_train, x_train, w, step_when_finished):
+    print("FINISHED ON STEP %s" % step_when_finished)
+
+    r2_test = r2(y_true_test, x_test * w)
+    r2_train = r2(y_true_train, x_train * w)
+    rmse_test = rmse(y_true_test, x_test * w)
+    rmse_train = rmse(y_true_train, x_train * w)
+
+    print_r2_rmse(r2_test, r2_train, rmse_test, rmse_train)
     results.append([r2_test, r2_train, rmse_test, rmse_train] + list(w))
 
 
@@ -85,16 +89,12 @@ else:
 
 for train_indexes, test_indexes in kfold_indexes:
     number_of_round += 1
+    print("\nROUND %s" % number_of_round)
 
     train_df = df.iloc[train_indexes]
     test_df = df.iloc[test_indexes]
 
-    train_df, test_df, train_df_outliers_rate, test_df_outliers_rate = drop_outliers_if_necessary(train_df, test_df, df)
-
-    print("\nROUND %s" % number_of_round)
-    if do_drop_outliers:
-        print("TRAIN DF OUTLIERS RATE = %s" % train_df_outliers_rate)
-        print("TEST DF OUTLIERS RATE = %s" % test_df_outliers_rate)
+    train_df, test_df = drop_outliers_if_necessary(train_df, test_df, df)
 
     y_true = matrix(train_df['target']).T
     x = matrix(train_df.loc[:, train_df.columns != 'target'])
@@ -116,10 +116,10 @@ for train_indexes, test_indexes in kfold_indexes:
 
         if step % number_of_steps_when_log == 0:
             print("\nSTEP %s OF ROUND %s" % (step, number_of_round))
-            print("  R2_TEST  = %s" % r2(y_true_test, x_test * current_w))
-            print("  R2_TRAIN = %s" % r2(y_true, x * current_w))
-            print("RMSE_TEST  = %s" % rmse(y_true_test, x_test * current_w))
-            print("RMSE_TRAIN = %s" % rmse(y_true, x * current_w))
+            print_r2_rmse(r2(y_true_test, x_test * current_w),
+                          r2(y_true, x * current_w),
+                          rmse(y_true_test, x_test * current_w),
+                          rmse(y_true, x * current_w))
             print(" ...")
 
 print_report_to_csv(results)
