@@ -10,9 +10,6 @@ df_columns_list = ["Page Popularity", "Page Checkins", "Page Talking About", "Pa
                    "published_weekday_6", "base_weekday_0", "base_weekday_1", "base_weekday_2",
                    "base_weekday_3", "base_weekday_4", "base_weekday_5", "base_weekday_6", "target"]
 
-target_column_number = 53
-clean_target_column_number = 54
-
 
 stochastically = False
 

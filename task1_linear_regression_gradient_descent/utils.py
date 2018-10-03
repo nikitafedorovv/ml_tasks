@@ -9,6 +9,7 @@ from scipy import std
 
 from task1_linear_regression_gradient_descent.config import *
 
+
 # import matplotlib.pyplot as plt
 
 
@@ -118,8 +119,8 @@ def get_normalized_df(path):
     #         plt.show()
 
     df = df.apply(lambda x: (x - x.mean()) / x.std()
-                  if x.name not in ['target']
-                  else x * 1.0, axis=0).fillna(value=0.0)
+    if x.name not in ['target']
+    else x * 1.0, axis=0).fillna(value=0.0)
 
     df['constant_b'] = zero_values_vector(len(df)) + 1
 
@@ -139,8 +140,7 @@ def first_row(t_size):
 
 
 def names_of_rows():
-    return ['R2_TEST'] + ['R2_TRAIN'] + ['RMSE_TEST'] + ['RMSE_TRAIN'] + df_columns_list[:target_column_number] + [
-        'CONST_B']
+    return ['R2_TEST'] + ['R2_TRAIN'] + ['RMSE_TEST'] + ['RMSE_TRAIN'] + df_columns_list[:53] + ['CONST_B']
 
 
 def print_report_to_csv(results):
