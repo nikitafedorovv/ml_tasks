@@ -1,63 +1,76 @@
 import csv
+import math
 from time import localtime, strftime
 
 import numpy as np
 import pandas as pd
-import scipy as sp
-
-import math
+from scipy import mean
+from scipy import std
 
 from task1_linear_regression_gradient_descent.config import *
 
-
-# from scipy import optimize
 # import matplotlib.pyplot as plt
 
 
-# res = optimize.minimize(count_error, x0=zero_values_vector, method='Nelder-Mead')
-#
-# print_results(res.x)
+def zero_values_vector(size):
+    return np.matrix([0.0] * size).T
 
 
-# def drop_outliers_quantile(dframe, base_dframe, low=0.01, high=0.99):
-#     quant_df = base_dframe.quantile([low, high])
-#
-#     res = dframe.apply(lambda x: x[(x >= quant_df.loc[low, x.name]) &
-#                                    (x <= quant_df.loc[high, x.name]) &
-#                                    (x.name == df_columns_list[0]) |
-#                                    (x.name != df_columns_list[0])], axis=0)
-#     res.dropna(inplace=True)
-#
-#     return res
-#
-#
-# def drop_outliers_std(dframe, base_dframe, std_coeff=0.1):
-#     base_std = base_dframe.std()
-#     base_mean = base_dframe.mean()
-#
-#     res = dframe.apply(lambda x: x[(np.abs(x - base_mean[x.name]) <= std_coeff * base_std[x.name]) &
-#                                    (x.name == df_columns_list[0]) |
-#                                    (x.name != df_columns_list[0])], axis=0)
-#     res.dropna(inplace=True)
-#
-#     return res
-#
-#
-# def drop_outliers(dframe, base_dframe):
-#     if drop_outliers_method_is_quantile:
-#         filt_df = drop_outliers_quantile(dframe, base_dframe, outliers_quantile_low, outliers_quantile_high)
-#     else:
-#         filt_df = drop_outliers_std(dframe, base_dframe, outliers_std_coeff)
-#
-#     rate = 1 - len(filt_df) / len(dframe)
-#
-#     return filt_df, rate
+def drop_outliers_quantile(dframe, base_dframe, low=0.01, high=0.99):
+    quant_df = base_dframe.quantile([low, high])
+
+    res = dframe.apply(lambda x: x[(x >= quant_df.loc[low, x.name]) &
+                                   (x <= quant_df.loc[high, x.name]) &
+                                   (x.name == df_columns_list[0]) |
+                                   (x.name != df_columns_list[0])], axis=0)
+    res.dropna(inplace=True)
+
+    return res
 
 
-def drop_outliers_1(dframe, column_index, std_coeff):
-    res = dframe.apply(lambda x: x[(np.abs(x - x.mean()) <= std_coeff * x.std()) &
-                                   (x.name == df_columns_list[column_index]) |
-                                   (x.name != df_columns_list[column_index])], axis=0)
+def drop_outliers_std(dframe, base_dframe, std_coeff=1):
+    base_std = base_dframe.std()
+    base_mean = base_dframe.mean()
+
+    res = dframe.apply(lambda x: x[(np.abs(x - base_mean[x.name]) <= std_coeff * base_std[x.name]) &
+                                   (x.name == df_columns_list[0]) |
+                                   (x.name != df_columns_list[0])], axis=0)
+    res.dropna(inplace=True)
+
+    return res
+
+
+def drop_outliers(dframe, base_dframe):
+    if drop_outliers_method_is_quantile:
+        filt_df = drop_outliers_quantile(dframe, base_dframe, outliers_quantile_low, outliers_quantile_high)
+    else:
+        filt_df = drop_outliers_std(dframe, base_dframe, outliers_std_coeff)
+
+    rate = 1 - len(filt_df) / len(dframe)
+
+    return filt_df, rate
+
+
+def drop_outliers_if_necessary(train_df, test_df, df):
+    if do_drop_outliers:
+        train_df, train_df_outliers_rate = drop_outliers(train_df, df)
+
+        if do_drop_outliers_from_test_df:
+            test_df, test_df_outliers_rate = drop_outliers(test_df, df)
+        else:
+            test_df_outliers_rate = 0.0
+    else:
+        train_df_outliers_rate = 0.0
+        test_df_outliers_rate = 0.0
+
+    return train_df, test_df, train_df_outliers_rate, test_df_outliers_rate
+
+
+def drop_outliers_from_specific_column(dframe, column_name, border):
+    res = dframe.apply(lambda x: x[(x < border) &
+                                   (x.name == column_name) |
+                                   (x.name != column_name)], axis=0)
+
     res.dropna(inplace=True)
 
     return res
@@ -71,47 +84,50 @@ def names_by_indexes(indexes):
     return names
 
 
-log_indexes = [0, 1, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-               30, 31, 32, 33, 35, 36, 9, 53]
-
-log_log_indexes = []
-
-
 def get_normalized_df(path):
     df = pd.read_csv(path, names=df_columns_list)
 
-    df = drop_outliers_1(df, 11, 20)
+    # df = drop_outliers_from_specific_column(df, 'Page Popularity', 1 * 1e8)
+    # df = drop_outliers_from_specific_column(df, 'CC2', 1700)
+    # df = drop_outliers_from_specific_column(df, 'Target', 1200)
+    # # df = drop_outliers_from_specific_column(df, 'target', 1000)
+    # df = drop_outliers_from_specific_column(df, 'Page Talking About', 2000000)
+    # df = drop_outliers_from_specific_column(df, 'extra_0', 1000)
+    # df = drop_outliers_from_specific_column(df, 'extra_2', 1500)
+    # df = drop_outliers_from_specific_column(df, 'extra_3', 1500)
+    # df = drop_outliers_from_specific_column(df, 'extra_5', 250)
+    # df = drop_outliers_from_specific_column(df, 'extra_7', 600)  # 750
+    # df = drop_outliers_from_specific_column(df, 'extra_8', 500)  # 750
+    # # df = drop_outliers_from_specific_column(df, 'extra_10', 10) ? # 10# 100
+    # df = drop_outliers_from_specific_column(df, 'extra_15', 750)
+    # df = drop_outliers_from_specific_column(df, 'extra_17', 1250)
+    # df = drop_outliers_from_specific_column(df, 'extra_18', 1250)
+    # df = drop_outliers_from_specific_column(df, 'extra_19', 600)
+    # df = drop_outliers_from_specific_column(df, 'extra_20', 250)
+    # df = drop_outliers_from_specific_column(df, 'extra_22', 250)  # 1000
+    # df = drop_outliers_from_specific_column(df, 'extra_23', 250)  # 1000
+    # df = drop_outliers_from_specific_column(df, 'extra_24', 250)
+    # df = drop_outliers_from_specific_column(df, 'Post Length', 10000)
+    # df = drop_outliers_from_specific_column(df, 'Post Share Count', 40000)
 
-    df = df.apply(lambda x:
-                  sp.sign(x) * sp.log(np.abs(x) + 1)
-                  if x.name in names_by_indexes(log_indexes)
-                  else sp.sign(x) * sp.log(sp.log(np.abs(x) + 1) + 1)
-                  if x.name in names_by_indexes(log_log_indexes)
-                  else x, axis=0)
+    # df = df.apply(lambda x: x[(x['target'] < 300) | (x['Post Length'] < 3000)], axis=1)
 
-    # for name in [df_columns_list[9], df_columns_list[53]]:
-    #     df[[name]].plot()
-    #     plt.show()
+    # for name in df_columns_list:
+    #     if name != 'target':
+    #         df.plot(x='target', y=name, marker='.', linestyle='')
+    #         plt.show()
 
     df = df.apply(lambda x: (x - x.mean()) / x.std()
-                  if x.name != df_columns_list[53]
-                  else x * 1.0).fillna(value=0.0)
+                  if x.name not in ['target']
+                  else x * 1.0, axis=0).fillna(value=0.0)
 
-    # df = ((df - df.mean()) / df.std()).fillna(value=0.0)
+    df['constant_b'] = zero_values_vector(len(df)) + 1
 
     return df
 
 
-def target(log_value):
+def unlog(log_value):
     return np.power(math.e, log_value) - 1
-
-
-def e(values):
-    return np.mean(values)
-
-
-def std(values):
-    return np.std(values)
 
 
 def first_row(t_size):
@@ -123,7 +139,8 @@ def first_row(t_size):
 
 
 def names_of_rows():
-    return ['R2_TEST'] + ['R2_TRAIN'] + ['RMSE_TEST'] + ['RMSE_TRAIN'] + df_columns_list[:53] + ['CONST_B']
+    return ['R2_TEST'] + ['R2_TRAIN'] + ['RMSE_TEST'] + ['RMSE_TRAIN'] + df_columns_list[:target_column_number] + [
+        'CONST_B']
 
 
 def print_report_to_csv(results):
@@ -145,24 +162,6 @@ def print_report_to_csv(results):
             values = []
 
             for j in range(num_of_chunks):
-                values.append(results[j][i])
+                values.append(float(results[j][i]))
 
-            res_writer.writerow([row_names[i]] + values + [e(values)] + [std(values)])
-
-
-def get_df_with_valuable_fields(dframe, weights, edge=0.01):
-    valuable_names = [df_columns_list[53]]
-    for i in range(len(weights) - 1):
-        weight = weights[i]
-        if weight > edge:
-            if i < 53:
-                valuable_name = df_columns_list[i]
-            else:
-                valuable_name = 'CONST_B'
-            valuable_names += [valuable_name]
-
-    dframe = dframe.apply(lambda x: 1 * x if x.name in valuable_names else x * 0, axis=0)
-
-    print(dframe)
-
-    return dframe
+            res_writer.writerow([row_names[i]] + values + [mean(values)] + [std(values)])
