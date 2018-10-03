@@ -165,3 +165,10 @@ def print_report_to_csv(results):
                 values.append(float(results[j][i]))
 
             res_writer.writerow([row_names[i]] + values + [mean(values)] + [std(values)])
+
+        df_file_name = df_path.split('/')[-1]
+        res_writer.writerow([''])
+        res_writer.writerow(['DATAFRAME FILE'] + [df_file_name])
+        res_writer.writerow(['DATAFRAME SIZE'] + [str(len(get_normalized_df(df_path)))])
+        res_writer.writerow(['STOCHASTICALLY'] + [str(stochastically)])
+        res_writer.writerow(['DROP OUTLIERS'] + [str(do_drop_outliers)])

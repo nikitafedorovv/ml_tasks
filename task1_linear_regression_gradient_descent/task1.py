@@ -21,9 +21,9 @@ def rmse(y_true, y_pred):
 
 
 def r2(y_true, y_pred):
-    mse = sp.mean(sp.square(y_true - y_pred))
-    msemean = sp.mean(sp.square(y_true - sp.mean(y_true)))
-    return 1 - mse / msemean
+    msesum = sp.sum(sp.square(y_true - y_pred))
+    msemeansum = sp.sum(sp.square(y_true - sp.mean(y_true)))
+    return 1 - msesum / msemeansum
 
 
 def count_gradient(y, x, w):
@@ -76,7 +76,7 @@ def print_and_remember_result(y_true_test, x_test, y_true_train, x_train, w, ste
 
 
 df = get_normalized_df(df_path)
-# print("DATAFRAME SIZE = %s" % len(df))
+print("DATAFRAME SIZE = %s" % len(df))
 kfold_indexes = KFold(n_splits=5, random_state=None, shuffle=True).split(df)
 
 number_of_round = 0

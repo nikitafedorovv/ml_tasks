@@ -1,4 +1,4 @@
-df_path = 'dataset/Training/Features_Variant_3.csv'
+df_path = 'dataset/Training/Features_Variant_1.csv'
 df_columns_list = ["Page Popularity", "Page Checkins", "Page Talking About", "Page Category",
                    "extra_0", "extra_1", "extra_2", "extra_3", "extra_4", "extra_5", "extra_6",
                    "extra_7", "extra_8", "extra_9", "extra_10", "extra_11", "extra_12", "extra_13",
