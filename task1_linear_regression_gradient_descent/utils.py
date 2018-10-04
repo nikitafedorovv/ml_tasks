@@ -22,8 +22,8 @@ def drop_outliers_quantile(dframe, base_dframe, low=0.01, high=0.99):
 
     res = dframe.apply(lambda x: x[(x >= quant_df.loc[low, x.name]) &
                                    (x <= quant_df.loc[high, x.name]) &
-                                   (x.name == df_columns_list[0]) |
-                                   (x.name != df_columns_list[0])], axis=0)
+                                   (x.name == df_columns_list[53]) |
+                                   (x.name != df_columns_list[53])], axis=0)
     res.dropna(inplace=True)
 
     return res
@@ -34,8 +34,8 @@ def drop_outliers_std(dframe, base_dframe, std_coeff=1):
     base_mean = base_dframe.mean()
 
     res = dframe.apply(lambda x: x[(np.abs(x - base_mean[x.name]) <= std_coeff * base_std[x.name]) &
-                                   (x.name == df_columns_list[0]) |
-                                   (x.name != df_columns_list[0])], axis=0)
+                                   (x.name == df_columns_list[53]) |
+                                   (x.name != df_columns_list[53])], axis=0)
     res.dropna(inplace=True)
 
     return res

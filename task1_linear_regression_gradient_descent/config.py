@@ -21,9 +21,9 @@ eps_stoch = 1e-8
 step_stoch = 1 / 900
 when_to_log_stoch = 30000
 
-do_drop_outliers = False
+do_drop_outliers = True
 do_drop_outliers_from_test_df = False
 drop_outliers_method_is_quantile = False
-outliers_std_coeff = 5
+outliers_std_coeff = 6
 outliers_quantile_low = 0.00
 outliers_quantile_high = 0.99
