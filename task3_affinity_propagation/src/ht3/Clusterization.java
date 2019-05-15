@@ -2,14 +2,13 @@ package ht3;
 
 import java.io.FileWriter;
 import java.util.AbstractMap;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 
 public class Clusterization {
 
     private double[][] R;
-    private double[][] Rtransposed;
+    private double[][] RTransposed;
     private double[][] A;
     private double[][] S;
     private int[][] I;
@@ -24,7 +23,7 @@ public class Clusterization {
         this.A = firstFill(S);
         this.R = firstFill(S);
         this.I = I;
-        this.Rtransposed = firstFill(S);
+        this.RTransposed = firstFill(S);
     }
 
     public void go() {
@@ -32,6 +31,7 @@ public class Clusterization {
         int[] labelsBefore = new int[count];
         int theSameCounter = 0;
         int numberOfClusters = 0;
+        int numberOfClustersBefore = 0;
         for (int iterationNumber = 0; iterationNumber < amountOfIterations; iterationNumber++) {
 
             if ((iterationNumber + 1) % 10 == 0) {
@@ -46,18 +46,18 @@ public class Clusterization {
                     for (int j = 0; j < S[i].length; j++) {
                         if (j != max1.getKey()) {
                             R[i][j] = R[i][j] * (1 - parameter) + parameter * (S[i][j] - max1.getValue());
-                            Rtransposed[I[i][j]][getIndex(I[i][j], i)] = Rtransposed[I[i][j]][getIndex(I[i][j], i)] * (1 - parameter) + (parameter) * (S[i][j] - max1.getValue());
+                            RTransposed[I[i][j]][getIndex(I[i][j], i)] = RTransposed[I[i][j]][getIndex(I[i][j], i)] * (1 - parameter) + (parameter) * (S[i][j] - max1.getValue());
 
                         } else {
                             R[i][j] = R[i][j] * (1 - parameter) + parameter * (S[i][j] - max1.getValue());
-                            Rtransposed[I[i][j]][getIndex(I[i][j], i)] = Rtransposed[I[i][j]][getIndex(I[i][j], i)] * (1 - parameter) + (parameter) * (S[i][j] - max2.getValue());
+                            RTransposed[I[i][j]][getIndex(I[i][j], i)] = RTransposed[I[i][j]][getIndex(I[i][j], i)] * (1 - parameter) + (parameter) * (S[i][j] - max2.getValue());
                         }
                     }
                 }
             }
 
             // A
-            double[] sumofmaxes = sumOfMaxes(Rtransposed);
+            double[] sumofmaxes = sumOfMaxes(RTransposed);
 
             for (int i = 0; i < A.length; i++) {
                 A[i][0] = A[i][0] * (1 - parameter) + parameter * (sumofmaxes[i]);
@@ -94,7 +94,8 @@ public class Clusterization {
 
             numberOfClusters = hashSet.size();
 
-            boolean theSame = Arrays.equals(labels, labelsBefore);
+//            boolean theSame = Arrays.equals(labels, labelsBefore);
+            boolean theSame = numberOfClusters == numberOfClustersBefore;
 
             if (theSame) {
                 theSameCounter++;
@@ -103,6 +104,8 @@ public class Clusterization {
             }
 
 //            System.out.println("theSameCounter = " + theSameCounter);
+            System.out.println("theSameCounter = " + theSameCounter);
+//
 
             if (theSameCounter == 10) {
                 System.out.println("reached stop condition");
@@ -110,6 +113,7 @@ public class Clusterization {
             }
 
             labelsBefore = labels;
+            numberOfClustersBefore = numberOfClusters;
         }
 
         System.out.println("number of clusters = " + numberOfClusters);
@@ -125,7 +129,7 @@ public class Clusterization {
         }
     }
 
-    public Map.Entry<Integer, Double> getFirstMaxR(double[] aEdges, double[] sEdges) {
+    private Map.Entry<Integer, Double> getFirstMaxR(double[] aEdges, double[] sEdges) {
         double max = -100.0;
         int index = 0;
 
@@ -139,7 +143,7 @@ public class Clusterization {
         return new AbstractMap.SimpleEntry<>(index, max);
     }
 
-    public Map.Entry<Integer, Double> getSecondMaxR(double[] aEdges, double[] sEdges) {
+    private Map.Entry<Integer, Double> getSecondMaxR(double[] aEdges, double[] sEdges) {
         double max1 = -100.0;
         double max2 = -100.0;
         int index1 = 0;
