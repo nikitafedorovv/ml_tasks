@@ -14,7 +14,7 @@ public class Clusterization {
     private int[][] I;
     private static int count = 196591;
 
-    private static final int amountOfIterations = 50;
+    private static final int amountOfIterations = 200;
     private static final double parameter = 0.3;
     public static final double selfSimilarity = -1;
 
@@ -104,7 +104,7 @@ public class Clusterization {
             }
 
 //            System.out.println("theSameCounter = " + theSameCounter);
-            System.out.println("theSameCounter = " + theSameCounter);
+//            System.out.println("theSameCounter = " + theSameCounter);
 //
 
             if (theSameCounter == 10) {
